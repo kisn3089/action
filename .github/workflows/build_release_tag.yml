@@ -18,7 +18,6 @@ jobs:
         run: |
           VERSION=$(echo '${{ github.event.pull_request.title }}' | egrep -o '[0-9]{1,3}\.[0-9]{1,6}\.[0-9]{1,2}')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-        # run: echo "##[set-output name=version;]$(echo '${{ github.event.pull_request.title }}' | egrep -o '[0-9]{1,3}\.[0-9]{1,6}\.[0-9]{1,2}')"
 
       - name: Release 생성
         uses: actions/create-release@v1
