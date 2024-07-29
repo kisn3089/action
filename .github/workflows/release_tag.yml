@@ -17,6 +17,9 @@ jobs:
       # Git에서 제공하는 action version
       - uses: actions/checkout@v2
 
+      - name: Fetch all tags
+        run: git fetch --tags
+
       - name: Get Latest Tag
         id: get_latest_tag
         run: |
