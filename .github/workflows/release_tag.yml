@@ -9,17 +9,27 @@ on:
 # 실행문
 jobs:
   # build 라는 Naming
-  build:
-    # 실행 OS
+  fetch_tag:
     runs-on: ubuntu-latest
-    # 단계별 실행
     steps:
-      # Git에서 제공하는 action version
-      - uses: actions/checkout@v2
-
       - name: Fetch all tags
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Fetch Tags
         run: git fetch --tags
 
+  create_tag:
+    needs: fetch_tag
+    runs-on: ubuntu-latest
+    outputs:
+      newTag: ${{steps.create_new_tag.outputs.new_tag}}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Get Latest Tag
         id: get_latest_tag
         run: |
@@ -28,7 +38,6 @@ jobs:
 
       - name: Create New Tag
         id: create_new_tag
-        # 기존 태그 형식: 1.240729.00
         run: |
           year=$(date +'%y')
           month=$(date +'%m')
@@ -42,13 +51,63 @@ jobs:
           git tag $new_tag
           git push origin $new_tag
 
+  create_release:
+    needs: create_tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Fetch full history to ensure all tags are available
+
       - name: Create Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.create_new_tag.outputs.new_tag }}
-          release_name: ${{ steps.create_new_tag.outputs.new_tag }}
+          tag_name: ${{ needs.create_tag.outputs.newTag }}
+          release_name: ${{ needs.create_tag.outputs.newTag }}
+  # build:
+  #   # 실행 OS
+  #   runs-on: ubuntu-latest
+  #   # 단계별 실행
+  #   steps:
+  #     # Git에서 제공하는 action version
+  #     - uses: actions/checkout@v2
+
+  #     - name: Fetch all tags
+  #       run: git fetch --tags
+
+  #     - name: Get Latest Tag
+  #       id: get_latest_tag
+  #       run: |
+  #         latest_tag=$(git describe --tags --abbrev=0)
+  #         echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+
+  #     - name: Create New Tag
+  #       id: create_new_tag
+  #       # 기존 태그 형식: 1.240729.00
+  #       run: |
+  #         year=$(date +'%y')
+  #         month=$(date +'%m')
+  #         minor="${year}${month}"
+  #         IFS='.' read -r -a parts <<< "$latest_tag"
+  #         major="${parts[0]}"
+  #         latest_patch=${parts[2]}
+  #         new_patch=$(printf "%02d" $((10#$latest_patch + 1)))
+  #         new_tag="$major.$minor.$new_patch"
+  #         echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
+  #         git tag $new_tag
+  #         git push origin $new_tag
+
+  #     - name: Create Release
+  #       uses: actions/create-release@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         tag_name: ${{ steps.create_new_tag.outputs.new_tag }}
+  #         release_name: ${{ steps.create_new_tag.outputs.new_tag }}
 # permissions:
 #   contents: write
 #   pull-requests: write
