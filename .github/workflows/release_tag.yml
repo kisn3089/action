@@ -45,7 +45,7 @@ jobs:
           minor="${year}${month}"
           echo "LATEST_TAG: ${{steps.get_latest_tag.outputs.latest_tag}}"
           echo "Minor: $minor"
-          IFS='.' read -r -a parts <<< "$latest_tag"
+          IFS='.' read -r -a parts <<< ${{steps.get_latest_tag.outputs.latest_tag}}
           major="${parts[0]}"
           latest_patch="${parts[2]}"
           echo "parts: ${parts[*]}"
