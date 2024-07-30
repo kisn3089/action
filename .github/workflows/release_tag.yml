@@ -65,10 +65,11 @@ jobs:
             else
               new_patch=$(printf "%02d" $((10#$latest_patch + 1)))
             fi
+            new_major=$major
           fi
 
           echo "New Patch: $new_patch"
-          new_tag="$major.$minor.$new_patch"
+          new_tag="$new_major.$minor.$new_patch"
           echo "New Tag: $new_tag" 
           echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
           git tag $new_tag
