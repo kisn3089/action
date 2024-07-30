@@ -41,7 +41,7 @@ jobs:
         id: create_new_tag
         run: |
           year=$(date +'%y')
-          month=$(date +'%m')
+          month=08
           minor="${year}${month}"
           echo "LATEST_TAG: ${{steps.get_latest_tag.outputs.latest_tag}}"
           echo "Minor: $minor"
@@ -49,7 +49,12 @@ jobs:
           major="${parts[0]}"
           latest_patch="${parts[2]}"
           echo "parts: ${parts[*]}"
+          if [${{steps.get_latest_tag.outputs.latest_tag}} != "$minor"]; then
+            new_patch="00"
+          else
           new_patch=$(printf "%02d" $((10#$latest_patch + 1)))
+          fi
+
           echo "New Patch: $new_patch"
           new_tag="$major.$minor.$new_patch"
           echo "New Tag: $new_tag" 
@@ -68,9 +73,10 @@ jobs:
           fetch-depth: 0 # Fetch full history to ensure all tags are available
 
       - name: Create Release
-        uses: actions/create-release@v1.1.4
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ needs.create_tag.outputs.newTag }}
           release_name: ${{ needs.create_tag.outputs.newTag }}
+# month=$(date +'%m')
