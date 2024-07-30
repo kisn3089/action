@@ -8,6 +8,18 @@ on:
 
 # 실행문
 jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code.
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Build
+        run: yarn run build
+
   # origin으로부터 tags 조회
   Get_Tags:
     runs-on: ubuntu-latest
@@ -43,18 +55,16 @@ jobs:
       - name: Create New Tag
         id: create_new_tag
         # latest_tag의 버전과 현재 추가할 tag 버전을 비교하여 새로운 tag 추가
+        # commit에 major update 문구가 포함 되어있을 시 major+1.minor.00으로 업데이트
         run: |
           year=$(date +'%y')
           month=$(date +'%m')
           minor="${year}${month}"
-          echo "LATEST_TAG: ${{steps.get_latest_tag.outputs.latest_tag}}"
-          echo "Minor: $minor"
           IFS='.' read -r -a parts <<< ${{steps.get_latest_tag.outputs.latest_tag}}
           major="${parts[0]}"
           latest_minor="${parts[1]}"
           latest_patch="${parts[2]}"
           echo "parts: ${parts[*]}"
-          echo "commit: ${{github.event.head_commit.message}}"
 
           if [[ "${{github.event.head_commit.message}}" == *"major update"* ]]; then
             new_major=$((10#$major + 1))
@@ -68,7 +78,6 @@ jobs:
             new_major=$major
           fi
 
-          echo "New Patch: $new_patch"
           new_tag="$new_major.$minor.$new_patch"
           echo "New Tag: $new_tag" 
           echo "new_tag=$new_tag" >> $GITHUB_OUTPUT
