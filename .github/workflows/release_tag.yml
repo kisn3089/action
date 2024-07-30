@@ -47,12 +47,14 @@ jobs:
           echo "Minor: $minor"
           IFS='.' read -r -a parts <<< ${{steps.get_latest_tag.outputs.latest_tag}}
           major="${parts[0]}"
+          latest_minor="${parts[1]}"
           latest_patch="${parts[2]}"
           echo "parts: ${parts[*]}"
-          if [${{steps.get_latest_tag.outputs.latest_tag}} != "$minor"]; then
+          echo "boolean: $latest_minor, $minor"
+          if ["$latest_minor" != "$minor"]; then
             new_patch="00"
           else
-          new_patch=$(printf "%02d" $((10#$latest_patch + 1)))
+            new_patch=$(printf "%02d" $((10#$latest_patch + 1)))
           fi
 
           echo "New Patch: $new_patch"
