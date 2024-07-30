@@ -9,25 +9,25 @@ on:
 # 실행문
 jobs:
   # build 라는 Naming
-  fetch_tag:
+  Get_Tags:
     runs-on: ubuntu-latest
     steps:
       - name: Fetch all tags
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Fetch Tags
         run: git fetch --tags
 
-  create_tag:
-    needs: fetch_tag
+  Create_Tag:
+    needs: Get_Tags
     runs-on: ubuntu-latest
     outputs:
       newTag: ${{steps.create_new_tag.outputs.new_tag}}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Get Latest Tag
@@ -58,12 +58,12 @@ jobs:
           git push origin $new_tag
 
   create_release:
-    needs: create_tag
+    needs: Create_Tag
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Fetch full history to ensure all tags are available
 
