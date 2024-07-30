@@ -41,7 +41,7 @@ jobs:
         id: create_new_tag
         run: |
           year=$(date +'%y')
-          month=09
+          month=10
           minor="${year}${month}"
           echo "LATEST_TAG: ${{steps.get_latest_tag.outputs.latest_tag}}"
           echo "Minor: $minor"
@@ -51,7 +51,7 @@ jobs:
           latest_patch="${parts[2]}"
           echo "parts: ${parts[*]}"
           echo "boolean: $latest_minor, $minor"
-          if ["$latest_minor" != "$minor"]; then
+          if [ "$latest_minor" != "$minor" ]; then
             new_patch="00"
           else
             new_patch=$(printf "%02d" $((10#$latest_patch + 1)))
