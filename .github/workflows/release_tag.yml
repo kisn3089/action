@@ -8,7 +8,7 @@ on:
 
 # 실행문
 jobs:
-  # build 라는 Naming
+  # origin으로부터 tags 조회
   Get_Tags:
     runs-on: ubuntu-latest
     steps:
@@ -16,9 +16,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
       - name: Fetch Tags
         run: git fetch --tags
 
+  # tag 생성
   Create_Tag:
     needs: Get_Tags
     runs-on: ubuntu-latest
@@ -32,6 +34,7 @@ jobs:
           fetch-depth: 0
       - name: Get Latest Tag
         id: get_latest_tag
+        # 가져온 tags들 중 가장 최근 하나를 latest_tag 변수에 저장
         run: |
           latest_tag=$(git describe --tags --abbrev=0)
           echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
@@ -39,9 +42,10 @@ jobs:
 
       - name: Create New Tag
         id: create_new_tag
+        # latest_tag의 버전과 현재 추가할 tag 버전을 비교하여 새로운 tag 추가
         run: |
           year=$(date +'%y')
-          month=10
+          month=$(date +'%m')
           minor="${year}${month}"
           echo "LATEST_TAG: ${{steps.get_latest_tag.outputs.latest_tag}}"
           echo "Minor: $minor"
@@ -50,7 +54,14 @@ jobs:
           latest_minor="${parts[1]}"
           latest_patch="${parts[2]}"
           echo "parts: ${parts[*]}"
-          echo "boolean: $latest_minor, $minor"
+          echo "commit: ${{github.event.head_commit.message}}"
+
+          if [[ ${{github.event.head_commit.message}} == *"major update"* ]]; then
+            echo "true major update"
+          else
+            echo "false not update"
+          fi
+
           if [ "$latest_minor" != "$minor" ]; then
             new_patch="00"
           else
@@ -72,8 +83,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Fetch full history to ensure all tags are available
+          fetch-depth: 0
 
+      # 생성한 tag로 release 업데이트
       - name: Create Release
         uses: actions/create-release@v1
         env:
@@ -81,4 +93,3 @@ jobs:
         with:
           tag_name: ${{ needs.create_tag.outputs.newTag }}
           release_name: ${{ needs.create_tag.outputs.newTag }}
-# month=$(date +'%m')
