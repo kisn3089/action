@@ -57,15 +57,14 @@ jobs:
           echo "commit: ${{github.event.head_commit.message}}"
 
           if [[ "${{github.event.head_commit.message}}" == *"major update"* ]]; then
-            echo "true major update"
-          else
-            echo "false not update"
-          fi
-
-          if [ "$latest_minor" != "$minor" ]; then
+            new_major=$((10#$major + 1))
             new_patch="00"
           else
-            new_patch=$(printf "%02d" $((10#$latest_patch + 1)))
+            if [ "$latest_minor" != "$minor" ]; then
+              new_patch="00"
+            else
+              new_patch=$(printf "%02d" $((10#$latest_patch + 1)))
+            fi
           fi
 
           echo "New Patch: $new_patch"
