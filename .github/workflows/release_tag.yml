@@ -41,7 +41,7 @@ jobs:
         id: create_new_tag
         run: |
           year=$(date +'%y')
-          month=08
+          month=09
           minor="${year}${month}"
           echo "LATEST_TAG: ${{steps.get_latest_tag.outputs.latest_tag}}"
           echo "Minor: $minor"
