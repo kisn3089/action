@@ -19,10 +19,10 @@ jobs:
         id: yarn-cache
         uses: actions/cache@v3
         with:
-          path: ~/.cache/yarn
-          key: ${{runner.os}}-yarn-${{hashFiles('**/yarn.lock')}}
+          path: "**/node_modules"
+          key: ${{runner.os}}-build-${{hashFiles('**/yarn.lock')}}
           restore-keys: |
-            ${{runner.os}}-yarn-
+            ${{runner.os}}-build-
 
       - name: Install dependencies
         if: steps.yarn-cache.outputs.cache-hit != 'true'
