@@ -8,11 +8,21 @@ on:
 
 # 실행문
 jobs:
+  # yarn install && yarn run build
   Build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code.
         uses: actions/checkout@v3
+
+      - name: Cache node modules
+        id: yarn-cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/yarn
+          key: ${{runner.os}}-yarn-${{hashFiles('**/yarn.lock')}}
+          restore-keys: |
+            ${{runner.os}}-yarn-
 
       - name: Install dependencies
         run: yarn
